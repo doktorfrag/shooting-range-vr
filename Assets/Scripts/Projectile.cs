@@ -57,6 +57,7 @@ public class Projectile : MonoBehaviour
     //methods
     private void Awake()
     {
+        //make sure VRTK scripts are attached
         if (GetComponent<VRTK_InteractableObject>() == null)
 
         {
@@ -64,14 +65,18 @@ public class Projectile : MonoBehaviour
             return;
         }
 
+        //create event handlers for VR controllers
         GetComponent<VRTK_InteractableObject>().InteractableObjectGrabbed += new InteractableObjectEventHandler(ObjectGrabbed);
         GetComponent<VRTK_InteractableObject>().InteractableObjectUngrabbed += new InteractableObjectEventHandler(ObjectThrown);
     }
 
     private void Update()
     {
+        //track trajectory data from moment it leaves
+        //the hand to the moment it explodes
         if (_projectileThrown == true)
         {
+            //grab projectile data
             string projectileNumber = _projectileNumber.ToString();
             double dateReturn = Math.Round((DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds);
             string timestamp = dateReturn.ToString();
@@ -80,13 +85,14 @@ public class Projectile : MonoBehaviour
             string projectileZ = transform.position.z.ToString();
             string projectilePosition = projectileNumber + "," + timestamp + "," + projectileX + "," + projectileY + "," + projectileZ;
 
-            //add new item to list on each update
+            //save projectile data as strong to list on each update
             _projectileData.Add(projectilePosition);
         }
     }
 
     private void OnCollisionEnter(Collision collision)
     {
+        //if projectile touches target collider, mark as hit
         if (collision.gameObject.name == "Target" || collision.gameObject.name == "Target(Clone)")
         {
             GameController.Instance.TargetsHit = 1;
@@ -106,11 +112,15 @@ public class Projectile : MonoBehaviour
 
     private void ObjectGrabbed(object sender, InteractableObjectEventArgs e)
     {
+        //once object is grabbed from pedestal, turn gravity on
         ProjectileGravity = true;
     }
 
     private void ObjectThrown(object sender, InteractableObjectEventArgs e)
     {
+        //once projectile has been thrown or dropped,
+        //update GameContoller private variable accessors,
+        //load new projectile on pedestal, and start explosion sequence
         _projectileThrown = true;
         GameController.Instance.ShotsFired = 1;
         GameController.Instance.PedestalLoaded = false;
@@ -136,20 +146,24 @@ public class Projectile : MonoBehaviour
         Collider[] colliders = Physics.OverlapSphere(explosionPos, explosionRadius);
         foreach (Collider hit in colliders)
         {
+            //if has rigidbody, is tagret, and not projectile
             Rigidbody rb = hit.GetComponent<Rigidbody>();
             Target target = hit.GetComponent<Target>();
             if (rb != null && rb.tag != "Projectile")
             {
+                //blow it up
                 float upwardsModifier = UnityEngine.Random.Range(2.0f, 4.0f);
                 rb.AddExplosionForce(explosivePower, explosionPos, explosionRadius, upwardsModifier, ForceMode.Impulse);
                 if (target)
                 {
+                    //tell target to blow itself up
                     target.ExplodeTarget();
                     _targetNearHit = true;
                 }
             }
         }
-        //data on whether projectile hits target or explodes within 1.5 of target
+        //grab data on whether projectile hits target
+        //or explodes within 1.5 of target, and write to file
         _projectileData.Add("Target hit: "+_targetHit.ToString());
         _projectileData.Add("Target near hit: " + _targetNearHit.ToString());
         GameController.Instance.WriteData = _projectileData;

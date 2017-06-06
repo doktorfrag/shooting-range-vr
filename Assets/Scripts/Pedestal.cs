@@ -17,8 +17,6 @@ public class Pedestal : MonoBehaviour
     private Projectile _projectileScript;
     private int _direction = 1;
 
-    //private variable accessors
-
     void Update()
     {
         //put projectile on pedestal
@@ -34,23 +32,13 @@ public class Pedestal : MonoBehaviour
 
         if (_projectile)
         {
-            //move projectile up and down
+            //move projectile up or down
             _projectile.transform.Translate(0, _direction * levitationSpeed * Time.deltaTime, 0);
             if (_projectile.transform.position.y > maxY || _projectile.transform.position.y < minY)
             {
+                //toggle direction
                 _direction = -_direction;
             }
         }
     }
-
-    //void InstantiateProjectile()
-    //{
-    //    //instantiate projectile and place at top of pedestal
-    //    _projectile = Instantiate(_projectilePrefab) as GameObject;
-    //    _projectileScript = _projectile.GetComponent<Projectile>();
-    //    _projectileScript.ProjectileGravity = false;
-    //    _projectile.transform.position = transform.TransformPoint(Vector3.up * 0.6f);
-    //    _projectile.transform.rotation = transform.rotation;
-
-    //}
 }

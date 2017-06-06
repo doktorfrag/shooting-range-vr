@@ -16,6 +16,7 @@ public class Target : MonoBehaviour {
     //methods
     private void Start()
     {
+        //get target position data and write to file
         double dateReturn = Math.Round((DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds);
         string timestamp = dateReturn.ToString();
         string targetX = transform.position.x.ToString();

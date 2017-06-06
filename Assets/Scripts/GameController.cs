@@ -10,6 +10,7 @@ public class GameController : MonoBehaviour {
     private List<List<string>> _writeList = new List<List<string>>();
 
     //private variable accessors
+    //keeps track of the state of various game objects
     public static GameController Instance
     {
         get { return _gameControllerInstance ?? (_gameControllerInstance = new GameObject("GameController").AddComponent<GameController>()); }
@@ -71,6 +72,8 @@ public class GameController : MonoBehaviour {
         }
     }
 
+    //when a projectile explodes, it writes all its data (stored as a list)
+    //to _writeList, which is a list of lists
     private List<string> _writeData = new List<string>();
     public List<string> WriteData
     {
@@ -95,14 +98,16 @@ public class GameController : MonoBehaviour {
     //when game is shut down, write data as CSV file to local folder
     private void OnDestroy()
     {
-        //name TXT file
         //must delete or move TXT file each time before game is restarted
         string path = "trajectoryData.txt";
         StreamWriter writer = new StreamWriter(path, true);
         if (_writeList != null)
         {
+            //projectile data is stored as a list in a list;
+            //each list contains all the trajectory data for each projectile that was thrown
             foreach (List<string> listEntry in _writeList)
             {
+                //write out each line of one list to TXT file
                 foreach (string stringEntry in listEntry)
                 {
                     writer.WriteLine(stringEntry);
@@ -114,10 +119,11 @@ public class GameController : MonoBehaviour {
 
     private IEnumerator SpawnTarget()
     {
+        //wait for one sceond to target explosion to end,
+        //then spawn target at a random point 15-20m from the user
         yield return new WaitForSeconds(1);
         GameObject target = Instantiate(Resources.Load("Prefabs/Target", typeof(GameObject))) as GameObject;
         float randomZ = Random.Range(15.0f, 20.0f);
         target.transform.position = new Vector3(0f, 0.65f, randomZ);
-        Debug.Log(randomZ);
     }
 }
