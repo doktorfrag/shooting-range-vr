@@ -1,4 +1,6 @@
-﻿using System;
+﻿//script is attached to [VRTK] object in project hierarchy
+
+using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.VR;
@@ -34,6 +36,7 @@ public class TrackHeadset : MonoBehaviour
     private void OnDestroy()
     {
         //must delete or move TXT file each time before game is restarted
+        //otherwise data just gets appended at bottom of existing file
         string path = "headsetData.txt";
         StreamWriter writer = new StreamWriter(path, true);
         if (_headsetData != null)
